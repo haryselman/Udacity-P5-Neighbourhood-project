@@ -1,0 +1,174 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    min-width: 400px;
+    font-family: "Roboto", sans-serif;
+}
+
+#map {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+}
+
+#sidebar-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 400px;
+    background-color: #111111;
+    opacity: 0.90;
+    z-index: 5;
+}
+
+@media screen and (max-width: 900px) {
+    #sidebar-menu {
+        display: none;
+    }
+}
+
+#hamburger-menu {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    border: none;
+    width: 45px;
+    height: 45px;
+    background-color: black;
+    border-radius: 5px;
+    font-size: 1.8em;
+    color: white;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    z-index: 20;
+}
+
+.sidebar-header {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    background-color: black;
+    z-index: 10;
+    padding: 20px;
+}
+
+.searchbox {
+    position: relative;
+    padding: 20px 0 0 0;
+    /*top: 50px;*/
+    /*padding: 20px;*/
+    z-index: 10;
+}
+
+.form-input {
+    position: relative;
+    display: table;
+}
+
+#venueList {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100%;
+    opacity: 0.85;
+    overflow-y: auto;
+    padding: 100px 0 20px 0;
+    z-index: 9;
+}
+
+.venue-item {
+    list-style: none;
+    margin: 0;
+    padding: 30px 20px 20px;
+    border-top: 1px dashed #ccc;
+    cursor: pointer
+}
+
+.venue-item:first-child {
+    border-top: 0
+}
+
+.venue-item:hover {
+    background-color: darkgray;
+}
+
+.active {
+    background-color: darkred;
+
+}
+
+h1 {
+    position: relative;
+    font-size: 1.8em;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+}
+
+h3 {
+    font-size: 1.6em;
+    font-weight: 500;
+    line-height: 1.5em;
+    margin: 0;
+    color: red;
+}
+
+p {
+    color: white;
+}
+
+.black-font {
+    color: black;
+}
+
+a {
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+li {
+    min-height: 150px;
+}
+
+#overlay {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    opacity:0.5;
+    filter:alpha(opacity=50);
+}
+
+#modal {
+    position:absolute;
+    background:url(../images/tint20.png) 0 0 repeat;
+    background:rgba(0,0,0,0.2);
+    border-radius:14px;
+    padding:8px;
+}
+
+#content {
+    border-radius:8px;
+    background:#fff;
+    padding:20px;
+}
+
+#close {
+    position:absolute;
+    background:url(../images/close.png) 0 0 no-repeat;
+    width:24px;
+    height:27px;
+    display:block;
+    text-indent:-9999px;
+    top:-7px;
+    right:-7px;
+}
