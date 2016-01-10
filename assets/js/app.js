@@ -11,6 +11,10 @@ var Model = {
         // location is city center of Berlin
         var lat = ViewModel.googleMap.centerFocus.lat;
         var lng = ViewModel.googleMap.centerFocus.lng;
+        // as jsonp is used for the ajax request to the foursquare api there is not error handler. We there for set a timout of 4 sec if there is no success call.
+        var foursquareRequestTimeout = setTimeout(function () {
+            ViewModel.notificationHandler.openModal("Whoops lost connection with Foursquare API");
+        }, 4000);
         // API call to foursquare. As the app is a sushi finder by default the query includes sushi in the search query. In the app you can filter for the returned sushi places.
         // formally the clientid an secret should never be exposed and this API call should be handled server side. As this is just an exercise for Udacity it is included in the front-end source.
         var foursquareUrl =  'https://api.foursquare.com/v2/venues/search?client_id=Y3O0RZU3Q4KANU2MBAG2FSFRTM4OQSO2SNEXAE20HO4Y3BTT&client_secret=PEMBM4BL3G23LLUOPLE3XRVY14P4OAKBSVLTCJPKDMJ1P3RR&v=20130815&ll=' + lat +',' + lng + '&query=sushi';
@@ -19,6 +23,8 @@ var Model = {
             dataType: 'jsonp',
             success: function(response) {
                 'use strict';
+                // if request is successful we need to clear the timeout error we set before
+                clearTimeout(foursquareRequestTimeout);
                 // here we check if there are any results in the search
                 if (response.response.venues.length > 0) {
                     self.listOfVenues = response.response.venues;
@@ -28,11 +34,6 @@ var Model = {
                     // if there are no venues found we open a modal window and notify the user
                     ViewModel.notificationHandler.openModal("No results found for your location");
                 }
-            },
-            error: function() {
-                // if the api call us unsuccessful we notify the user
-                ViewModel.notificationHandler.openModal("Whoops lost connection with Foursquare API");
-
             }
         });
     },
@@ -78,22 +79,17 @@ var ViewModel = {
     updateView: function(listOfVenues) {
         'use strict';
         var self = this;
-        //self.listObject.generateListContent(listOfVenues);
         self.knockOutBindings.venues(listOfVenues);
         self.googleMap.markerObject.setMarkers(listOfVenues);
     },
-    menu: {
-        // this nameless fuctions directly runs on loading the object in order for the menu / hamburger menu to become active
-        hamburgerMenu: (function(){
-            $("#hamburger-menu").click(function() {
-                // annimation takes 500ms
-                $("#sidebar-menu").toggle(500, "swing", function(){
-                });
-            });
-        }())
-    },
     // this objects contains all the knockout databindings as well as a search function which is called from one of the bindings:
     knockOutBindings: {
+        // function to toggle visibility of the list menu
+        toggleVisibility: function () {
+            ViewModel.knockOutBindings.showMenu(!ViewModel.knockOutBindings.showMenu());
+        },
+        // sets the default to true to show the menu
+        showMenu: ko.observable(true),
         // venues is updated by the updateView function and contains the array of venues. I updated this as I rewrote a htmlBinding to forEach binding
         venues: ko.observableArray(),
         // contains the selected venue object
@@ -109,7 +105,6 @@ var ViewModel = {
         showMarkerAndListInteractions: function (data, i) {
             "use strict";
             var self = this;
-            console.log(i);
             // assigning the clicked data to the selectedVenue
             ViewModel.knockOutBindings.selectedVenue(data);
             // bouncing associated marker on google maps
@@ -329,7 +324,7 @@ var ViewModel = {
                 'use strict';
                 var self = this;
                 // below the HTML is generated for the infoWindow
-                var venueSummary = Model.listOfVenues[i].summary;
+                var venueSummary = ViewModel.knockOutBindings.venues()[i].summary;
                 var infoWindowContent = "<h3>" + venueSummary.name + "</h3>";
                 // nameless function to generate the URL html when a URL is not empty
                 (function(){

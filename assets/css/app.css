@@ -7,7 +7,7 @@ body {
     font-family: "Roboto", sans-serif;
 }
 
-#map {
+.google-map {
     position: absolute;
     height: 100%;
     width: 100%;
@@ -169,7 +169,7 @@ li {
 /*Added more responsiveness to the width of the list view*/
 @media screen and (max-width: 900px) {
     #sidebar-menu {
-        display: none;
+        /*display: none;*/
         width: 270px;
     }
     .sidebar-header {

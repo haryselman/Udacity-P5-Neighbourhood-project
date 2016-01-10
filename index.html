@@ -10,10 +10,10 @@
 
 </head>
 <body>
-    <button id="hamburger-menu">
+    <button id="hamburger-menu" data-bind="click: toggleVisibility">
         <i class="fa fa-bars"></i>
     </button>
-    <div id="sidebar-menu">
+    <div id="sidebar-menu" data-bind="visible: showMenu">
         <div class="sidebar-header">
             <h1>Best sushi places</h1>
             <div class="searchbox">
@@ -35,11 +35,11 @@
             </li>
         </ul>
     </div>
-    <div id="map"></div>
+    <div id="map" class="google-map"></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
     <script src="assets/js/app.js"></script>
     // on load of the google maps api script we get a callback to the initMap fuction that creates the map
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWlo91KtmNqnHojt_ts3MaetnpsZvdbHU&libraries=places&callback=ViewModel.googleMap.initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWlo91KtmNqnHojt_ts3MaetnpsZvdbHU&libraries=places&callback=ViewModel.googleMap.initMap" onerror="googleError()" async defer></script>
 </body>
 </html>
