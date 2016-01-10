@@ -6,7 +6,7 @@
     <title>Find the best Sushi places | Udacity</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
 
 </head>
 <body>
@@ -25,14 +25,21 @@
                 </form>
             </div>
         </div>
-        <ul id="venueList" data-bind="html: htmlVenueList">
+        <!--Created a foreach databinding instead of the html databinding I had before which would allow me to set the css binding where I used jQuery before-->
+        <ul id="venueList" data-bind="foreach: venues">
+            <!--below databinding calls a function show markers of the clicked list elements and bounce the markers, the css binding highlights the clicked element in the list-->
+            <li class='venue-item' data-bind="click: $root.assignIndexToClickedElement, css: {active: $data == $root.selectedVenue()}">
+                <h3 data-bind="text: summary.name"></h3>
+                <p data-bind="text: summary.street"></p>
+                <p data-bind="text: summary.zipCity"></p>
+            </li>
         </ul>
     </div>
     <div id="map"></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>
-    <script type="text/javascript" src="assets/js/app.js"></script>
+    <script src="assets/js/app.js"></script>
     // on load of the google maps api script we get a callback to the initMap fuction that creates the map
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWlo91KtmNqnHojt_ts3MaetnpsZvdbHU&signed_in=true&libraries=places&callback=ViewModel.googleMap.initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWlo91KtmNqnHojt_ts3MaetnpsZvdbHU&libraries=places&callback=ViewModel.googleMap.initMap" async defer></script>
 </body>
 </html>

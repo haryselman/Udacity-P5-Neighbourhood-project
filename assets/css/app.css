@@ -1,8 +1,9 @@
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     padding: 0;
-    min-width: 400px;
+    /*min-width: 400px;*/
     font-family: "Roboto", sans-serif;
 }
 
@@ -22,12 +23,6 @@ html, body {
     background-color: #111111;
     opacity: 0.90;
     z-index: 5;
-}
-
-@media screen and (max-width: 900px) {
-    #sidebar-menu {
-        display: none;
-    }
 }
 
 #hamburger-menu {
@@ -61,8 +56,6 @@ html, body {
 .searchbox {
     position: relative;
     padding: 20px 0 0 0;
-    /*top: 50px;*/
-    /*padding: 20px;*/
     z-index: 10;
 }
 
@@ -79,7 +72,7 @@ html, body {
     height: 100%;
     opacity: 0.85;
     overflow-y: auto;
-    padding: 100px 0 20px 0;
+    padding: 120px 0 20px 0;
     z-index: 9;
 }
 
@@ -171,4 +164,24 @@ li {
     text-indent:-9999px;
     top:-7px;
     right:-7px;
+}
+
+/*Added more responsiveness to the width of the list view*/
+@media screen and (max-width: 900px) {
+    #sidebar-menu {
+        display: none;
+        width: 270px;
+    }
+    .sidebar-header {
+        width: 270px;
+    }
+    #venueList {
+        width: 270px;
+    }
+    h1 {
+        font-size: 1.3em;
+    }
+    h3 {
+        font-size: 1.3em;
+    }
 }

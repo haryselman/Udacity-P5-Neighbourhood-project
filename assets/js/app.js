@@ -1,7 +1,7 @@
 // app.js has two objects: 1) Model and 2) ViewModel
-// Model object contains the list of Venues and venue details that we get back from the foursquare api. jQuery is used to to the API call.
+// Model object contains the list of Venues and venue details that we get back from the foursquare api. jQuery is used to do the API call.
 // The method createSummaryForVenues created a summary object out of the orriginal response of the foursquare api.
-// At the end the createSummaryForVenues function the list of venues get sorted according to a weigted score
+// At the end the createSummaryForVenues function the list of venues get sorted according to a weighted score
 
 var Model = {
     listOfVenues: [],
@@ -16,7 +16,7 @@ var Model = {
         var foursquareUrl =  'https://api.foursquare.com/v2/venues/search?client_id=Y3O0RZU3Q4KANU2MBAG2FSFRTM4OQSO2SNEXAE20HO4Y3BTT&client_secret=PEMBM4BL3G23LLUOPLE3XRVY14P4OAKBSVLTCJPKDMJ1P3RR&v=20130815&ll=' + lat +',' + lng + '&query=sushi';
         $.ajax({
             url: foursquareUrl,
-            dataType: "jsonp",
+            dataType: 'jsonp',
             success: function(response) {
                 'use strict';
                 // here we check if there are any results in the search
@@ -26,12 +26,12 @@ var Model = {
                     self.createSummaryForVenues(self.listOfVenues);
                 } else {
                     // if there are no venues found we open a modal window and notify the user
-                    ViewModel.notificationHandler.openModal("No results found for your location")
+                    ViewModel.notificationHandler.openModal("No results found for your location");
                 }
             },
             error: function() {
                 // if the api call us unsuccessful we notify the user
-                ViewModel.notificationHandler.openModal("Whoops lost connection with Foursquare API")
+                ViewModel.notificationHandler.openModal("Whoops lost connection with Foursquare API");
 
             }
         });
@@ -40,7 +40,8 @@ var Model = {
     createSummaryForVenues: function(venuesArray) {
         'use strict';
         var self = this;
-        for (var i = 0; i < venuesArray.length; i++) {
+        var arrayLength = venuesArray.length;
+        for (var i = 0; i < arrayLength; i++) {
             venuesArray[i].summary = {
                 latlngPosition: {
                     lat: venuesArray[i].location.lat,
@@ -52,20 +53,12 @@ var Model = {
                 phone: (function(){
                     'use strict';
                     // here we check if the venue has a phone number listed. In some situations this is not the case.
-                    if (venuesArray[i].contact.hasOwnProperty('formattedPhone')) {
-                        return venuesArray[i].contact.formattedPhone;
-                    } else {
-                        return "empty";
-                    }
+                    return venuesArray[i].contact.formattedPhone ? venuesArray[i].contact.formattedPhone : "empty";
                 })(i),
                 url: (function(){
                     'use strict';
                     // here we check if the venue has a url  listed. In some situations this is not the case.
-                    if (venuesArray[i].hasOwnProperty('url')) {
-                        return venuesArray[i].url;
-                    } else {
-                        return "empty";
-                    }
+                    return venuesArray[i].url ? venuesArray[i].url : "empty";
                 })(i),
                 // weighted score is used to order the list. the weigthed score is the number of recommendations devided by number of user unique checkins
                 weightedScore: (function(){
@@ -85,7 +78,8 @@ var ViewModel = {
     updateView: function(listOfVenues) {
         'use strict';
         var self = this;
-        self.listObject.generateListContent(listOfVenues);
+        //self.listObject.generateListContent(listOfVenues);
+        self.knockOutBindings.venues(listOfVenues);
         self.googleMap.markerObject.setMarkers(listOfVenues);
     },
     menu: {
@@ -100,8 +94,39 @@ var ViewModel = {
     },
     // this objects contains all the knockout databindings as well as a search function which is called from one of the bindings:
     knockOutBindings: {
-        // binds a generated list of HTML with venue list items to the page
-        htmlVenueList: ko.observable(""),
+        // venues is updated by the updateView function and contains the array of venues. I updated this as I rewrote a htmlBinding to forEach binding
+        venues: ko.observableArray(),
+        // contains the selected venue object
+        selectedVenue: ko.observable(),
+        // this function resolved the index of the clicked element and then starts the function to create the view interactions such as bouncing the markers..
+        assignIndexToClickedElement: function (data) {
+            var self = this;
+            var context = ko.contextFor(event.target);
+            var indexNumber = context.$index();
+            ViewModel.knockOutBindings.showMarkerAndListInteractions(data, indexNumber);
+        },
+        // this function bounces the markers, shows the infoWindow and hightlight and scrolls to the clicked element in the list
+        showMarkerAndListInteractions: function (data, i) {
+            "use strict";
+            var self = this;
+            console.log(i);
+            // assigning the clicked data to the selectedVenue
+            ViewModel.knockOutBindings.selectedVenue(data);
+            // bouncing associated marker on google maps
+            ViewModel.googleMap.markerObject.bounceMarker(i);
+            // show associated infoWinow on google maps
+            ViewModel.googleMap.infoWindowObject.showInfoWindow(i);
+            // function to highlight the clicked list element and scroll to it
+            var venueListSelect = $('#venueList');
+            // the list items have a height of 150 pixels. to know how far you need to scroll in the index of the clicked list element is multiplied by 150 pixels
+            var listPixelHeight = 150 * i;
+            // animated scroll to the clicked list element
+            venueListSelect.animate({
+                scrollTop: listPixelHeight
+                // scroll animation takes 500ms
+            }, 500);
+
+        },
         // searchTerm info research from the searchBox
         searchTerm: ko.observable(''),
         // function to filter the original venues Object returned from the FS API
@@ -119,6 +144,7 @@ var ViewModel = {
             }
         }
     },
+    // As mentioned by the previous reviewer it would be good to use knockout for below modal window. As this is just a practice app I didn't reafctor code below to make knockout bindings
     notificationHandler: {
         // Modal view to handle user notifications / errors. Used the exampel from: http://www.jacklmoore.com/notes/jquery-modal-tutorial/
         // function below is a nameless function which is executed immediately
@@ -196,31 +222,6 @@ var ViewModel = {
     },
     // listObject contains all data and functions needed to manage the venues list on the page
     listObject: {
-        // generateListContent generates the HTML list elements <li> and updates the knockout binding so show the list on the page when done with the for loop
-        generateListContent: function(obj){
-            'use strict';
-            var self = this;
-            for (var result in obj) {
-                var venueSummary = obj[result].summary;
-                var listContent;
-                listContent += "<li class='venue-item'>";
-                listContent += "<h3>" + venueSummary.name + "</h3>";
-                listContent += "<p><span>" + venueSummary.street + "<br>" + venueSummary.zipCity;
-                (function(){
-                    if (venueSummary.phone != "empty"){
-                        return listContent += "<br>" + venueSummary.phone + "</span></p>";
-                    } else {
-                        return listContent += "</span></p>"
-                    }
-                }());
-                listContent += "</li>";
-            }
-            // inserting the generated html to the page
-            ViewModel.knockOutBindings.htmlVenueList(listContent);
-            // makeListClickable function makes the list items clickable (sets all the click events)
-            self.makeListClickable();
-        },
-        // this function sorts the list
         sortListOfVenues: function(){
             'use strict';
             var self = this;
@@ -229,44 +230,11 @@ var ViewModel = {
             });
             ViewModel.updateView(Model.listOfVenues);
         },
-        // sets the list click events: bouncing the marker when you click on the list element, opens the google infoWindow and highlights the list element and scrolls to it
-        makeListClickable: function() {
-            'use strict';
-            var self = this;
-            // used jQuery to make the list items clickable
-            $('#venueList').find('li').click(function() {
-                // create an index number of the list items
-                var indexNumber = $(this).index();
-                // bouncing associated marker on google maps
-                ViewModel.googleMap.markerObject.bounceMarker(indexNumber);
-                // show associated infoWinow on google maps
-                ViewModel.googleMap.infoWindowObject.showInfoWindow(indexNumber);
-                // function to highlight the clicked list element and scroll to it
-                self.highlightListOnClick(indexNumber);
-            });
-        },
         // function with the filter rule to filter the list based on the search
         filterListOfVenues: function(obj) {
             'use strict';
             var self = this;
             return obj.name.toLowerCase().indexOf(ViewModel.knockOutBindings.searchTerm().toLowerCase()) > -1;
-        },
-        // function to highlight the clicked list element and scroll to it
-        highlightListOnClick: function(i){
-            'use strict';
-            // using jquery to select the id venuelist <ul>
-            var venueListSelect = $('#venueList');
-            // removes the active class if any is found so no duplicate list items can be selected
-            venueListSelect.find('.active').removeClass('active');
-            // .eq(i) is used to select the particular clicked list element and then sets it to active class
-            venueListSelect.find('li').eq(i).addClass('active');
-            // the list items have a height of 150 pixels. to know how far you need to scroll in the index of the clicked list element is multiplied by 150 pixels
-            var listPixelHeight = 150 * i;
-            // animated scroll to the clicked list element
-            venueListSelect.animate({
-                scrollTop: listPixelHeight
-                // scroll animation takes 500ms
-            }, 500);
         }
     },
     // googleMap object contains all data and functions related to map interactions
@@ -302,7 +270,8 @@ var ViewModel = {
                     self.clearMarkers();
                 }
                 // looping through the venues list to create the marker based on lat lng position
-                for (var i = 0; i < listOfVenues.length; i++) {
+                var arrayLength = listOfVenues.length;
+                for (var i = 0; i < arrayLength; i++) {
                     self.markerList.push(new google.maps.Marker({
                         position: listOfVenues[i].summary.latlngPosition,
                         map: map,
@@ -318,7 +287,8 @@ var ViewModel = {
                 'use strict';
                 var self = this;
                 // loop that removes the markers of the map
-                for (var i = 0; i < self.markerList.length; i++) {
+                var arrayLength = self.markerList.length;
+                for (var i = 0; i < arrayLength; i++) {
                     self.markerList[i].setMap(null);
                 }
                 // markerList array is emptied again
@@ -332,12 +302,9 @@ var ViewModel = {
                 var self = this;
                 self.markerList[i].addListener('click', function() {
                     'use strict';
-                    // bounces the marker when clicked
-                    self.bounceMarker(i);
-                    // shows the infoWindow when clicked
-                    ViewModel.googleMap.infoWindowObject.showInfoWindow(i);
                     // highlights the associated list element and scrolls to it when clicked.
-                    ViewModel.listObject.highlightListOnClick(i);
+                    var dataClickedElement = ViewModel.knockOutBindings.venues()[i];
+                    ViewModel.knockOutBindings.showMarkerAndListInteractions(dataClickedElement, i);
                 })
             },
             // function that bounces the marker three times
